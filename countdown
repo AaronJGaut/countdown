@@ -8,6 +8,7 @@ for ARG in "$@"; do
     SUFFIX="${ARG#$WORD}"
     FACTOR=1
     case "$SUFFIX" in
+        d | D ) FACTOR=86400;;
         h | H ) FACTOR=3600;;
         m | M ) FACTOR=60;;
         s | S ) ;;
