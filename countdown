@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+TIME=$(date +%s.%N)
+REFRESH_INTERVAL=.02
+
+REMAINING=0
+for ARG in "$@"; do
+    WORD="${ARG%?}"
+    SUFFIX="${ARG#$WORD}"
+    FACTOR=1
+    case "$SUFFIX" in
+        h | H ) FACTOR=3600;;
+        m | M ) FACTOR=60;;
+        s | S ) ;;
+        * ) WORD="$ARG";;
+    esac
+    if [ $(echo "$WORD" | grep '^\([0-9]\+\.[0-9]*\)\|\([0-9]*\.[0-9]\+\)\|\([0-9]\+\)$') ]; then
+        REMAINING=$(echo "$FACTOR * $WORD + $REMAINING" | bc)
+    else
+        echo "$WORD"
+        echo "Failed to parse $ARG"
+        exit 1
+    fi
+done
+
+START=$TIME
+END=$(echo "$TIME + $REMAINING" | bc)
+
+
+print_remaining()
+{
+    H=$(echo "scale = 0; $REMAINING / 3600" | bc)
+    M=$(echo "scale = 0; $REMAINING / 60 % 60" | bc)
+    S=$(echo "scale = 0; $REMAINING % 60" | bc)
+    printf '\r%dh %02dm %02.2fs' $H $M $S
+}
+
+while [ $(echo "$TIME < $END" | bc) -eq 1 ]; do
+    REMAINING=$(echo "$END - $TIME" | bc)
+    print_remaining
+    sleep "$REFRESH_INTERVAL"
+    TIME="$(date +%s.%N)"
+done
+REMAINING=0
+print_remaining
+printf '\n'
