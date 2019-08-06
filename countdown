@@ -13,7 +13,7 @@ for ARG in "$@"; do
         s | S ) ;;
         * ) WORD="$ARG";;
     esac
-    if [ $(echo "$WORD" | grep '^\([0-9]\+\.[0-9]*\)\|\([0-9]*\.[0-9]\+\)\|\([0-9]\+\)$') ]; then
+    if [ $(echo "$WORD" | grep -x '\([0-9]\+\.[0-9]*\)\|\([0-9]*\.[0-9]\+\)\|\([0-9]\+\)') ]; then
         REMAINING=$(echo "$FACTOR * $WORD + $REMAINING" | bc)
     else
         echo "$WORD"
