@@ -14,7 +14,7 @@ for ARG in "$@"; do
         s | S ) ;;
         * ) WORD="$ARG";;
     esac
-    if [ $(echo "$WORD" | grep -x '\([0-9]\+\.[0-9]*\)\|\([0-9]*\.[0-9]\+\)\|\([0-9]\+\)') ]; then
+    if echo "$WORD" | grep -qx '\([0-9]\+\.[0-9]*\)\|\([0-9]*\.[0-9]\+\)\|\([0-9]\+\)'; then
         REMAINING=$(echo "$FACTOR * $WORD + $REMAINING" | bc)
     else
         echo "Failed to parse $ARG"
@@ -22,7 +22,6 @@ for ARG in "$@"; do
     fi
 done
 
-START=$TIME
 END=$(echo "$TIME + $REMAINING" | bc)
 
 
@@ -32,10 +31,10 @@ print_remaining()
     H=$(echo "scale = 0; $REMAINING / 3600 % 24" | bc)
     M=$(echo "scale = 0; $REMAINING / 60 % 60" | bc)
     S=$(echo "scale = 0; $REMAINING % 60" | bc)
-    printf '\r%dd %02dh %02dm %05.2fs ' $D $H $M $S
+    printf '\r%dd %02dh %02dm %05.2fs ' "$D" "$H" "$M" "$S"
 }
 
-while [ $(echo "$TIME < $END" | bc) -eq 1 ]; do
+while [ "$(echo "$TIME < $END" | bc)" -eq 1 ];  do
     REMAINING=$(echo "$END - $TIME" | bc)
     print_remaining
     sleep "$REFRESH_INTERVAL"
